@@ -30,7 +30,7 @@ export default function Register() {
       window.location.href = "/login";
     } catch (err) {
       console.error(err.response?.data);
-      alert(err.response?.data?.error || "Registration failed");
+      alert(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }

@@ -1,48 +1,33 @@
-import { useState } from "react";
 import API from "../api/api.js";
 
-export default function FileUpload({ onUpload }) {
-  const [progress, setProgress] = useState(0);
+export default function FileUpload({ folderId, onUpload }) {
+  const handleUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const uploadFile = async (file) => {
     const formData = new FormData();
-    formData.append("file", file);
-    
+    formData.append("file", file); 
 
-    await API.post("/files/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-      onUploadProgress: (e) =>
-        setProgress(Math.round((e.loaded * 100) / e.total)),
-    });
+    try {
+      await API.post("/files/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-    setProgress(0);
-    onUpload();
-  };
-
-  const onDrop = (e) => {
-    e.preventDefault();
-    uploadFile(e.dataTransfer.files[0]);
+      alert("Upload successful");
+      onUpload();
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      alert(err.response?.data?.error || "Upload failed");
+    }
   };
 
   return (
-    <div
-      onDrop={onDrop}
-      onDragOver={(e) => e.preventDefault()}
-      className="border-2 border-dashed p-6 text-center rounded-lg"
-    >
-      <p className="text-gray-600">Drag & Drop files here</p>
-
-      <input
-        type="file"
-        onChange={(e) => uploadFile(e.target.files[0])}
-        className="mt-3"
-      />
-
-      {progress > 0 && (
-        <div className="mt-2">
-          Uploading... {progress}%
-        </div>
-      )}
-    </div>
+    <input
+      type="file"
+      onChange={handleUpload}
+      className="border p-2"
+    />
   );
 }
